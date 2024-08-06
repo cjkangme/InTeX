@@ -3,6 +3,7 @@ from scipy.spatial.transform import Rotation as R
 
 import torch
 
+
 def dot(x, y):
     if isinstance(x, np.ndarray):
         return np.sum(x * y, -1, keepdims=True)
@@ -42,7 +43,9 @@ def look_at(campos, target, opengl=True):
 
 
 # elevation & azimuth to pose (cam2world) matrix
-def orbit_camera(elevation, azimuth, radius=1, is_degree=True, target=None, opengl=True):
+def orbit_camera(
+    elevation, azimuth, radius=1, is_degree=True, target=None, opengl=True
+):
     # radius: scalar
     # elevation: scalar, in (-90, 90), from +y to -y is (-90, 90)
     # azimuth: scalar, in (-180, 180), from +z to +x is (0, 90)
@@ -51,15 +54,18 @@ def orbit_camera(elevation, azimuth, radius=1, is_degree=True, target=None, open
         elevation = np.deg2rad(elevation)
         azimuth = np.deg2rad(azimuth)
     x = radius * np.cos(elevation) * np.sin(azimuth)
-    y = - radius * np.sin(elevation)
+    y = -radius * np.sin(elevation)
     z = radius * np.cos(elevation) * np.cos(azimuth)
     if target is None:
         target = np.zeros([3], dtype=np.float32)
-    campos = np.array([x, y, z]) + target  # [3]
+    campos = (
+        np.array([x, y, z]) + target
+    )  # target이 (0,0,0)이 아닐 경우 이에 맞도록 카메라 월드 좌표 변환
     T = np.eye(4, dtype=np.float32)
     T[:3, :3] = look_at(campos, target, opengl)
     T[:3, 3] = campos
     return T
+
 
 def undo_orbit_camera(T, is_degree=True):
     # T: [4, 4], camera pose matrix
@@ -72,6 +78,7 @@ def undo_orbit_camera(T, is_degree=True):
         elevation = np.rad2deg(elevation)
         azimuth = np.rad2deg(azimuth)
     return elevation, azimuth, radius
+
 
 class OrbitCamera:
     def __init__(self, W, H, r=2, fovy=60, near=0.01, far=100):

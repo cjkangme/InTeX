@@ -29,7 +29,7 @@ control_mode: ["depth_inpaint"]
 text_dir: true
 
 ### camera path to generate the texture
-camera_path: front
+camera_path: custom
 
 ### background image, default to white.
 bg_image: None # assets/brick_wall.png
